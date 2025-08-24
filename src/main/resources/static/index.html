@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Boot Weather App</title>
+    <style>
+        body {
+          margin: 0;
+          font-family: Arial, sans-serif;
+          background: linear-gradient(135deg, #4facfe, #00f2fe);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          height: 100vh;
+          transition: background 1s ease;
+        }
+
+        .weather-app {
+          background: rgba(255, 255, 255, 0.9);
+          padding: 30px;
+          border-radius: 20px;
+          text-align: center;
+          width: 350px;
+          box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+          margin-bottom: 15px;
+        }
+
+        input {
+          padding: 10px;
+          width: 65%;
+          border: 1px solid #ccc;
+          border-radius: 10px;
+        }
+
+        button {
+          padding: 10px;
+          border: none;
+          background: #4facfe;
+          color: white;
+          border-radius: 10px;
+          cursor: pointer;
+          margin-left: 5px;
+        }
+
+        button:hover {
+          background: #007bff;
+        }
+
+        .weather-result {
+          margin-top: 20px;
+        }
+
+        .icon {
+          width: 80px;
+        }
+    </style>
+</head>
+<body>
+<div class="weather-app">
+    <h2>🌦 Spring Boot Weather</h2>
+    <input type="text" id="city" placeholder="Enter city">
+    <button onclick="getWeather()">Search</button>
+    <div class="weather-result" id="result"></div>
+</div>
+
+<script>
+    async function getWeather() {
+      const city = document.getElementById("city").value;
+      if (!city) {
+        alert("Please enter a city name!");
+        return;
+      }
+
+      const response = await fetch(`/api/weather/${city}`);
+      if (!response.ok) {
+        document.getElementById("result").innerHTML = "<p>❌ City not found!</p>";
+        document.body.style.background = "linear-gradient(135deg, #4facfe, #00f2fe)";
+        return;
+      }
+
+      const data = await response.json();
+      const weather = data.weather[0].main.toLowerCase();
+
+      // 🌈 Dynamic background based on weather
+      if (weather.includes("cloud")) {
+        document.body.style.background = "linear-gradient(135deg, #757f9a, #d7dde8)";
+      } else if (weather.includes("rain")) {
+        document.body.style.background = "linear-gradient(135deg, #373b44, #4286f4)";
+      } else if (weather.includes("clear")) {
+        document.body.style.background = "linear-gradient(135deg, #56ccf2, #2f80ed)";
+      } else if (weather.includes("snow")) {
+        document.body.style.background = "linear-gradient(135deg, #83a4d4, #b6fbff)";
+      } else if (weather.includes("storm") || weather.includes("thunder")) {
+        document.body.style.background = "linear-gradient(135deg, #141e30, #243b55)";
+      } else {
+        document.body.style.background = "linear-gradient(135deg, #4facfe, #00f2fe)";
+      }
+
+      document.getElementById("result").innerHTML = `
+        <h3>${data.name}, ${data.sys.country}</h3>
+        <img class="icon" src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png">
+        <p><strong>${data.main.temp}°C</strong></p>
+        <p>${data.weather[0].description}</p>
+        <p>💧 Humidity: ${data.main.humidity}%</p>
+        <p>🌬 Wind: ${data.wind.speed} m/s</p>
+      `;
+    }
+</script>
+</body>
+</html>
